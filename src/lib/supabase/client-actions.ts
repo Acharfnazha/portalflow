@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import type { ClientStatus } from "@/types/app.types";
+import { createNotification } from "@/lib/supabase/notification-actions";
 
 export type ClientActionState = { error: string } | null;
 
@@ -90,6 +91,7 @@ export async function createClientAction(
     if (error) return { error: error.message };
 
     await logActivity(orgId, user.id, client.id, "created", `Created client ${name.trim()}`);
+    createNotification(orgId, user.id, "client_created", `New client: ${name.trim()}`, `Added to your workspace`, "client", client.id);
 
     revalidatePath("/dashboard/clients");
     return null;

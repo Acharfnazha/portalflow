@@ -6,6 +6,7 @@ import { useAuthContext } from "@/components/auth/auth-provider";
 import { signOut } from "@/lib/supabase/actions";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { getInitials, getAvatarColors } from "@/lib/format";
+import { NotificationBell } from "@/components/dashboard/notification-bell";
 
 export function Topbar() {
   const [query, setQuery] = useState("");
@@ -70,13 +71,7 @@ export function Topbar() {
 
       {/* Actions */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
-        <button
-          aria-label="Notifications"
-          style={{ position: "relative", width: 32, height: 32, borderRadius: 8, border: "1px solid var(--pf-line)", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--pf-text-2)" }}
-        >
-          <i className="ti ti-bell" aria-hidden="true" style={{ fontSize: 17 }} />
-          <span aria-hidden="true" style={{ position: "absolute", top: 6, right: 6, width: 6, height: 6, borderRadius: "50%", background: "#ef4444", border: "1.5px solid #fff" }} />
-        </button>
+        <NotificationBell />
 
         {/* Avatar + dropdown */}
         <div ref={menuRef} style={{ position: "relative" }}>

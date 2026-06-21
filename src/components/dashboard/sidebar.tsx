@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuthContext } from "@/components/auth/auth-provider";
+import { getInitials, getAvatarColors } from "@/lib/format";
 
 const NAV = [
   { href: "/dashboard",          icon: "ti-layout-dashboard", label: "Dashboard" },
-  { href: "/dashboard/clients",  icon: "ti-users",            label: "Clients",   badge: 42 },
+  { href: "/dashboard/clients",  icon: "ti-users",            label: "Clients" },
   { href: "/dashboard/projects", icon: "ti-layout-kanban",    label: "Projects" },
   { href: "/dashboard/documents",icon: "ti-file-text",        label: "Documents" },
 ];
 
 const FINANCE = [
-  { href: "/dashboard/invoices", icon: "ti-receipt",      label: "Invoices", badge: 3 },
+  { href: "/dashboard/invoices", icon: "ti-receipt",      label: "Invoices" },
   { href: "/dashboard/payments", icon: "ti-credit-card",  label: "Payments" },
 ];
 
@@ -65,6 +67,14 @@ function NavGroup({ label, items }: { label?: string; items: typeof NAV }) {
 }
 
 export function Sidebar() {
+  const { user, profile } = useAuthContext();
+  const displayName = profile?.full_name || user?.email?.split("@")[0] || "User";
+  const initials = getInitials(displayName) || "U";
+  const avatarColors = getAvatarColors(displayName);
+  const roleLabel = profile?.role
+    ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1)
+    : "Member";
+
   return (
     <aside
       style={{
@@ -102,12 +112,15 @@ export function Sidebar() {
       {/* User */}
       <div style={{ padding: "12px 10px", borderTop: "1px solid var(--pf-line)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "7px 9px", borderRadius: 7, cursor: "pointer" }}>
-          <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#e0e7ff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: "#4f46e5", flexShrink: 0 }}>
-            AN
+          <div style={{ width: 28, height: 28, borderRadius: "50%", background: avatarColors.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: avatarColors.color, flexShrink: 0 }}>
+            {profile?.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.avatar_url} alt={displayName} style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+            ) : initials}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: "var(--pf-text)" }}>Ali N.</div>
-            <div style={{ fontSize: 11, color: "var(--pf-text-3)" }}>Agency plan</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "var(--pf-text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayName}</div>
+            <div style={{ fontSize: 11, color: "var(--pf-text-3)" }}>{roleLabel}</div>
           </div>
           <i className="ti ti-selector" aria-hidden="true" style={{ fontSize: 14, color: "var(--pf-text-3)" }} />
         </div>

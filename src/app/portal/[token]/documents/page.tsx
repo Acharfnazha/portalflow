@@ -1,81 +1,191 @@
-import { use } from "react";
-import { formatFileSize, formatDate } from "@/lib/format";
+import { notFound } from "next/navigation";
+import { getPortalContext, getPortalDocuments } from "@/lib/supabase/portal-actions";
+import { FILE_TYPE_CONFIG } from "@/lib/doc-config";
+import { formatFileSize } from "@/lib/format";
+import type { DocumentFileType } from "@/types/app.types";
 
-const TYPE_ICON: Record<string, { icon: string; bg: string; color: string }> = {
-  pdf:   { icon: "ti-file-type-pdf",    bg: "#fef2f2", color: "#dc2626" },
-  doc:   { icon: "ti-file-type-doc",    bg: "#eff6ff", color: "#1d4ed8" },
-  xls:   { icon: "ti-file-spreadsheet", bg: "#f0fdf4", color: "#16a34a" },
-  img:   { icon: "ti-photo",            bg: "#faf5ff", color: "#7e22ce" },
-  other: { icon: "ti-file",             bg: "var(--pf-surface-2)", color: "var(--pf-text-3)" },
-};
-
-export default function PortalDocumentsPage({
-  params,
-}: {
+interface PageProps {
   params: Promise<{ token: string }>;
-}) {
-  const { token: _token } = use(params);
+}
 
-  const docs = [
-    { id: "1", name: "Brand Guidelines v3.pdf",         type: "pdf", size: 4200000, date: "2025-01-10" },
-    { id: "2", name: "Project Proposal Q1 2025.docx",   type: "doc", size: 280000,  date: "2025-01-08" },
-    { id: "3", name: "Hero Illustration Final.png",      type: "img", size: 1900000, date: "2025-01-04" },
-    { id: "4", name: "Contract — Antigravity 2025.pdf",  type: "pdf", size: 420000,  date: "2025-01-02" },
-  ];
+function fmtDate(s: string) {
+  return new Date(s).toLocaleDateString("en-US", {
+    month: "short",
+    day:   "numeric",
+    year:  "numeric",
+  });
+}
+
+export default async function PortalDocumentsPage({ params }: PageProps) {
+  const { token } = await params;
+  const ctx = await getPortalContext(token);
+  if (!ctx) notFound();
+
+  const documents = await getPortalDocuments(ctx.client.id);
 
   return (
-    <div style={{ padding: 28 }}>
-      <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--pf-text)", margin: "0 0 20px", letterSpacing: "-.3px" }}>
-        Documents
-      </h1>
-
-      <div style={{ background: "#fff", border: "1px solid var(--pf-line)", borderRadius: 12, overflow: "hidden" }}>
-        {docs.map((doc, i) => {
-          const ti = TYPE_ICON[doc.type] ?? TYPE_ICON.other;
-          return (
-            <div
-              key={doc.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 14,
-                padding: "14px 18px",
-                borderBottom: i < docs.length - 1 ? "1px solid var(--pf-line)" : "none",
-              }}
-            >
-              <div
-                style={{
-                  width: 40, height: 40, borderRadius: 10,
-                  background: ti.bg, flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}
-              >
-                <i className={`ti ${ti.icon}`} aria-hidden style={{ fontSize: 20, color: ti.color }} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ margin: 0, fontSize: 13.5, fontWeight: 500, color: "var(--pf-text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {doc.name}
-                </p>
-                <p style={{ margin: 0, fontSize: 12, color: "var(--pf-text-3)" }}>
-                  {formatFileSize(doc.size)} · {formatDate(doc.date)}
-                </p>
-              </div>
-              <button
-                type="button"
-                style={{
-                  display: "flex", alignItems: "center", gap: 5,
-                  padding: "6px 12px", borderRadius: 7,
-                  border: "1px solid var(--pf-line)", background: "#fff",
-                  fontSize: 12.5, color: "var(--pf-text-2)", cursor: "pointer", fontFamily: "var(--font-inter)",
-                }}
-              >
-                <i className="ti ti-download" aria-hidden style={{ fontSize: 13 }} />
-                Download
-              </button>
-            </div>
-          );
-        })}
+    <div style={{ padding: "28px 28px 40px", maxWidth: 900, margin: "0 auto" }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1
+          style={{
+            fontSize:      20,
+            fontWeight:    700,
+            color:         "var(--pf-text)",
+            margin:        "0 0 4px",
+            letterSpacing: "-.3px",
+            fontFamily:    "var(--font-inter-tight)",
+          }}
+        >
+          Documents
+        </h1>
+        <p style={{ margin: 0, fontSize: 13, color: "var(--pf-text-2)" }}>
+          {documents.length} {documents.length === 1 ? "file" : "files"} shared with you
+        </p>
       </div>
+
+      {documents.length === 0 ? (
+        <div
+          style={{
+            background:    "#fff",
+            border:        "1px solid var(--pf-line)",
+            borderRadius:  12,
+            display:       "flex",
+            flexDirection: "column",
+            alignItems:    "center",
+            padding:       "72px 20px",
+            color:         "var(--pf-text-3)",
+          }}
+        >
+          <i className="ti ti-folder-off" aria-hidden style={{ fontSize: 44, opacity: 0.3 }} />
+          <p style={{ fontSize: 15, fontWeight: 600, color: "var(--pf-text-2)", margin: "12px 0 4px" }}>
+            No documents yet
+          </p>
+          <p style={{ fontSize: 13, margin: 0 }}>
+            Documents shared with you will appear here.
+          </p>
+        </div>
+      ) : (
+        <div
+          style={{
+            background:   "#fff",
+            border:       "1px solid var(--pf-line)",
+            borderRadius: 12,
+            overflow:     "hidden",
+          }}
+        >
+          {documents.map((doc, i) => {
+            const ftc = FILE_TYPE_CONFIG[doc.fileType as DocumentFileType] ?? FILE_TYPE_CONFIG.other;
+            return (
+              <div
+                key={doc.id}
+                style={{
+                  display:      "flex",
+                  alignItems:   "center",
+                  gap:          14,
+                  padding:      "14px 18px",
+                  borderBottom: i < documents.length - 1 ? "1px solid var(--pf-line)" : "none",
+                }}
+              >
+                {/* File icon */}
+                <div
+                  style={{
+                    width:          44,
+                    height:         44,
+                    borderRadius:   11,
+                    background:     ftc.bg,
+                    display:        "flex",
+                    alignItems:     "center",
+                    justifyContent: "center",
+                    flexShrink:     0,
+                  }}
+                >
+                  <i
+                    className={`ti ${ftc.icon}`}
+                    aria-hidden
+                    style={{ fontSize: 22, color: ftc.color }}
+                  />
+                </div>
+
+                {/* Name + meta */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p
+                    style={{
+                      margin:       0,
+                      fontSize:     14,
+                      fontWeight:   500,
+                      color:        "var(--pf-text)",
+                      overflow:     "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace:   "nowrap",
+                    }}
+                  >
+                    {doc.name}
+                  </p>
+                  <p style={{ margin: "3px 0 0", fontSize: 12, color: "var(--pf-text-3)" }}>
+                    {ftc.label} · {formatFileSize(doc.sizeBytes)} · {fmtDate(doc.createdAt)}
+                  </p>
+                </div>
+
+                {/* Type badge */}
+                <span
+                  style={{
+                    fontSize:     11.5,
+                    fontWeight:   600,
+                    padding:      "3px 9px",
+                    borderRadius: 99,
+                    background:   ftc.bg,
+                    color:        ftc.color,
+                    flexShrink:   0,
+                  }}
+                >
+                  {ftc.label}
+                </span>
+
+                {/* Download */}
+                {doc.signedUrl ? (
+                  <a
+                    href={doc.signedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download={doc.name}
+                    style={{
+                      display:      "flex",
+                      alignItems:   "center",
+                      gap:          5,
+                      padding:      "7px 14px",
+                      borderRadius: 8,
+                      border:       "1px solid var(--pf-line)",
+                      background:   "#fff",
+                      fontSize:     13,
+                      color:        "var(--pf-text-2)",
+                      textDecoration: "none",
+                      flexShrink:   0,
+                      fontFamily:   "var(--font-inter)",
+                      fontWeight:   500,
+                    }}
+                  >
+                    <i className="ti ti-download" aria-hidden style={{ fontSize: 14 }} />
+                    Download
+                  </a>
+                ) : (
+                  <div
+                    style={{
+                      padding:      "7px 14px",
+                      borderRadius: 8,
+                      border:       "1px solid var(--pf-line)",
+                      fontSize:     13,
+                      color:        "var(--pf-text-3)",
+                      flexShrink:   0,
+                    }}
+                  >
+                    Processing…
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

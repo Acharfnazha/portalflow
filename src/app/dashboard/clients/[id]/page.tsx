@@ -70,6 +70,7 @@ export default async function ClientProfilePage({ params }: PageProps) {
     mrrCents:      row.mrr_cents,
     healthScore:   row.health_score,
     portalEnabled: row.portal_enabled,
+    portalToken:   row.portal_token ?? undefined,
     notes:         row.notes ?? undefined,
     createdAt:     row.created_at,
     updatedAt:     row.updated_at,

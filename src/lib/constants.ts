@@ -3,19 +3,73 @@
 // ============================================================
 
 export const APP_NAME = "PortalFlow";
-export const APP_URL  = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+export const APP_URL  = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
 
 // ── Plans ────────────────────────────────────────────────────
 export const PLAN_LIMITS = {
-  studio:     { clients: 25,   users: 5,  storageGb: 5  },
-  agency:     { clients: null, users: null, storageGb: 50 },
+  studio:     { clients: 25,   users: 5,    storageGb: 5    },
+  agency:     { clients: null, users: null, storageGb: 50   },
   enterprise: { clients: null, users: null, storageGb: null },
 } as const;
 
 export const PLAN_PRICES = {
-  studio: { month: 2900,  year: 27840  }, // cents
-  agency: { month: 7900,  year: 75840  },
+  studio:     { month: 2900,  year: 27840  }, // cents
+  agency:     { month: 7900,  year: 75840  },
+  enterprise: { month: 19900, year: 191040 },
 } as const;
+
+export const PLAN_CONFIG = {
+  studio: {
+    key:          "studio" as const,
+    name:         "Starter",
+    monthlyPrice: 2900,
+    yearlyPrice:  27840,
+    highlighted:  false,
+    limits:       { clients: 20, projects: 5, storageGb: 1, seats: 1 },
+    features:     [
+      "Up to 20 clients",
+      "5 active projects",
+      "1 GB document storage",
+      "Client portal",
+      "PDF invoices",
+      "Email support",
+    ],
+  },
+  agency: {
+    key:          "agency" as const,
+    name:         "Pro",
+    monthlyPrice: 7900,
+    yearlyPrice:  75840,
+    highlighted:  true,
+    limits:       { clients: null, projects: null, storageGb: 10, seats: 5 },
+    features:     [
+      "Unlimited clients",
+      "Unlimited projects",
+      "10 GB document storage",
+      "Up to 5 team members",
+      "Custom branding",
+      "Priority support",
+    ],
+  },
+  enterprise: {
+    key:          "enterprise" as const,
+    name:         "Agency",
+    monthlyPrice: 19900,
+    yearlyPrice:  191040,
+    highlighted:  false,
+    limits:       { clients: null, projects: null, storageGb: null, seats: null },
+    features:     [
+      "Everything in Pro",
+      "Unlimited team members",
+      "White-label portal",
+      "Custom domain",
+      "Advanced analytics",
+      "Dedicated success manager",
+    ],
+  },
+} as const;
+
+export type PlanKey = keyof typeof PLAN_CONFIG;
 
 // ── Pagination ────────────────────────────────────────────────
 export const DEFAULT_PAGE_SIZE = 10;

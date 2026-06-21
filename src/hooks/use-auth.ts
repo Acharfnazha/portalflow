@@ -9,7 +9,7 @@ export interface AuthProfile {
   organization_id: string | null;
   full_name: string | null;
   avatar_url: string | null;
-  role: "owner" | "admin" | "manager" | "member";
+  role: "owner" | "admin" | "manager" | "staff";
   job_title: string | null;
   timezone: string;
 }

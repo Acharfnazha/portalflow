@@ -37,7 +37,7 @@ export function ClientProfileShell({ client, counts, canManage }: Props) {
       <ProfileHeader client={client} onEdit={() => setEditOpen(true)} />
 
       <div style={{ display: "flex", flex: 1 }}>
-        <InfoSidebar client={client} />
+        <InfoSidebar client={client} canManage={canManage} />
 
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           {/* Tab bar */}
@@ -85,8 +85,14 @@ export function ClientProfileShell({ client, counts, canManage }: Props) {
             role="tabpanel"
             style={{ flex: 1, padding: "20px 24px", overflowY: "auto" }}
           >
-            {activeTab === "projects"  && <TabProjects  clientId={client.id} />}
-            {activeTab === "documents" && <TabDocuments clientId={client.id} />}
+            {activeTab === "projects"  && <TabProjects  clientId={client.id} canManage={canManage} />}
+            {activeTab === "documents" && (
+              <TabDocuments
+                clientId={client.id}
+                orgId={client.organizationId}
+                canManage={canManage}
+              />
+            )}
             {activeTab === "invoices"  && <TabInvoices  clientId={client.id} />}
             {activeTab === "activity"  && <TabActivity  clientId={client.id} />}
             {activeTab === "notes"     && <TabNotes     clientId={client.id} />}

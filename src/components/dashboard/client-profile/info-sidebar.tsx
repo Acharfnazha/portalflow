@@ -3,12 +3,14 @@
 import type { Client } from "@/types/app.types";
 import { HealthBar } from "@/components/dashboard/clients/health-bar";
 import { formatCurrency, formatDate, formatRelative } from "@/lib/format";
+import { PortalCard } from "./portal-card";
 
 interface Props {
-  client: Client & { ownerName?: string };
+  client:     Client & { ownerName?: string };
+  canManage?: boolean;
 }
 
-export function InfoSidebar({ client }: Props) {
+export function InfoSidebar({ client, canManage }: Props) {
   return (
     <aside
       aria-label="Client information"
@@ -66,6 +68,19 @@ export function InfoSidebar({ client }: Props) {
               {client.notes}
             </div>
           </Section>
+        </>
+      )}
+
+      {canManage && (
+        <>
+          <Divider />
+          <PortalCard
+            clientId={client.id}
+            clientEmail={client.email}
+            clientName={client.name}
+            portalToken={client.portalToken}
+            portalEnabled={client.portalEnabled}
+          />
         </>
       )}
 

@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED_PREFIXES = ["/dashboard"];
 const AUTH_ONLY_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ── Portal routes: validate token presence (full validation in route handler) ─

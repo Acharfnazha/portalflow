@@ -22,10 +22,36 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://portalflow.app";
+
 export const metadata: Metadata = {
-  title: "PortalFlow — Client portals that make you look enterprise",
+  title: {
+    default:  "PortalFlow — Client portals that make you look enterprise",
+    template: "%s — PortalFlow",
+  },
   description:
     "Give every client one secure, beautifully branded place for projects, invoices, documents, contracts, payments and messaging. Stop chasing email threads.",
+  metadataBase: new URL(siteUrl),
+  openGraph: {
+    type:        "website",
+    siteName:    "PortalFlow",
+    title:       "PortalFlow — Client portals that make you look enterprise",
+    description: "Give every client one secure, beautifully branded place for projects, invoices, documents, contracts, payments and messaging.",
+    url:         siteUrl,
+  },
+  twitter: {
+    card:        "summary_large_image",
+    title:       "PortalFlow — Client portals that make you look enterprise",
+    description: "Give every client one secure, beautifully branded place for projects, invoices, documents, contracts, payments and messaging.",
+  },
+  robots: {
+    index:  true,
+    follow: true,
+  },
+  icons: {
+    icon:    "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -36,6 +62,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
       style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
     >

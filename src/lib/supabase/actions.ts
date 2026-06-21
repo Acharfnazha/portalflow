@@ -32,7 +32,7 @@ export async function signUp(
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
-  if (!supabaseUrl || supabaseUrl.includes("placeholder")) {
+  if (!supabaseUrl || supabaseUrl.includes("placeholder") || supabaseUrl.includes("YOUR_PROJECT_REF")) {
     return { error: "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL in .env.local." };
   }
   if (!anonKey || anonKey.includes("placeholder")) {
@@ -71,7 +71,13 @@ export async function signUp(
 
   if (signUpResult.error) return { error: signUpResult.error.message };
 
-  // Supabase sends a confirmation email; redirect to a check-email page
+  // If email confirmation is disabled (e.g. dev mode), session is created immediately
+  if (signUpResult.data.session) {
+    revalidatePath("/", "layout");
+    redirect("/dashboard");
+  }
+
+  // Supabase sent a confirmation email
   redirect("/auth/check-email");
 }
 

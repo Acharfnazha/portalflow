@@ -13,7 +13,7 @@ export type SubscriptionStatus =
   | "paused";
 
 // ── User / Auth ───────────────────────────────────────────────
-export type UserRole = "owner" | "admin" | "manager" | "member";
+export type UserRole = "owner" | "admin" | "manager" | "staff";
 
 export interface User {
   id: string;
@@ -65,6 +65,7 @@ export interface Client {
   mrrCents: number;
   healthScore: number;
   portalEnabled: boolean;
+  portalToken?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -255,6 +256,26 @@ export interface PortalSession {
   expiresAt: string;
   lastUsedAt?: string;
   createdAt: string;
+}
+
+// ── Notifications ─────────────────────────────────────────────
+export type NotificationType =
+  | "client_created"
+  | "project_created"
+  | "document_uploaded"
+  | "invoice_created"
+  | "invoice_overdue"
+  | "portal_invite_sent";
+
+export interface Notification {
+  id:          string;
+  type:        NotificationType;
+  title:       string;
+  body?:       string;
+  entityType?: string;
+  entityId?:   string;
+  readAt?:     string;
+  createdAt:   string;
 }
 
 // ── Subscriptions ─────────────────────────────────────────────
