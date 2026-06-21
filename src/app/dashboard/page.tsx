@@ -15,7 +15,17 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.organization_id) redirect("/dashboard");
+  // Guard: profile or org not ready (e.g. Google OAuth before trigger fires).
+  // Do NOT redirect to /dashboard here — that causes an infinite redirect loop.
+  if (!profile?.organization_id) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", gap: 12, fontFamily: "var(--font-inter)", color: "var(--pf-text-2)" }}>
+        <i className="ti ti-loader-2" style={{ fontSize: 32, color: "#4f46e5" }} />
+        <p style={{ fontSize: 14, margin: 0 }}>Setting up your workspace…</p>
+        <p style={{ fontSize: 12, margin: 0 }}>If this persists, please sign out and sign in again.</p>
+      </div>
+    );
+  }
   const orgId = profile.organization_id as string;
 
   // Parallel data fetch
