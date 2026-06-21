@@ -5,6 +5,8 @@ import { createClient, createServiceClient } from "./server";
 import type { AuthState } from "./actions";
 import type { InvitableRole } from "@/lib/permissions";
 
+export type InviteState = { error: string } | { inviteUrl: string } | null;
+
 // ── Update organization ───────────────────────────────────────────────
 export async function updateOrganization(
   _prev: AuthState,
@@ -47,9 +49,9 @@ export async function updateOrganization(
 
 // ── Invite member ─────────────────────────────────────────────────────
 export async function inviteMember(
-  _prev: AuthState,
+  _prev: InviteState,
   formData: FormData
-): Promise<AuthState> {
+): Promise<InviteState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated." };
@@ -88,19 +90,23 @@ export async function inviteMember(
 
   if (error) return { error: error.message };
 
+  const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/accept-invite?token=${invitation.token}`;
+
   // Send invite email via Supabase Auth admin API
+  let emailSent = false;
   try {
     const serviceClient = await createServiceClient();
     await (serviceClient.auth.admin as { inviteUserByEmail: (email: string, opts: Record<string, unknown>) => Promise<unknown> }).inviteUserByEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/accept-invite?token=${invitation.token}`,
+      redirectTo: inviteUrl,
       data: { invited_to_org: profile.organization_id, invitation_role: role },
     });
+    emailSent = true;
   } catch {
-    // Email sending failed but invitation was created — show the token for manual sharing
+    // Email sending not configured — invitation was created, surface the link instead
   }
 
   revalidatePath("/dashboard/team");
-  return null;
+  return emailSent ? null : { inviteUrl };
 }
 
 // ── Update member role ────────────────────────────────────────────────
