@@ -172,6 +172,6 @@ export const SETTINGS_NAV = [
   { label: "General",      href: "/dashboard/settings",              icon: "ti-settings" },
   { label: "Profile",      href: "/dashboard/settings/profile",      icon: "ti-user-circle" },
   { label: "Billing",      href: "/dashboard/settings/billing",      icon: "ti-credit-card" },
-  { label: "Team",         href: "/dashboard/settings/team",         icon: "ti-users" },
+  { label: "Team",         href: "/dashboard/team",                  icon: "ti-users" },
   { label: "Integrations", href: "/dashboard/settings/integrations", icon: "ti-plug" },
 ] as const;
