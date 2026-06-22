@@ -58,6 +58,9 @@ function UrlErrorBanner({ formError }: { formError?: string }) {
 
 function LoginForm() {
   const [state, action, pending] = useActionState(signIn, null);
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "";
+  const googleHref = next ? `/api/auth/google?next=${encodeURIComponent(next)}` : "/api/auth/google";
 
   return (
     <div style={{ width: "100%", maxWidth: 400 }}>
@@ -72,7 +75,7 @@ function LoginForm() {
 
       {/* Google OAuth */}
       <a
-        href="/api/auth/google"
+        href={googleHref}
         style={{
           width: "100%",
           display: "flex",
@@ -186,5 +189,9 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  return <LoginForm />;
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
 }
