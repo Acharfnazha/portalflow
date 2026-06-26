@@ -124,21 +124,6 @@ export async function resetPassword(
   redirect("/dashboard");
 }
 
-// ── Google OAuth ─────────────────────────────────────────────
-export async function signInWithGoogle(): Promise<void> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      queryParams: { access_type: "offline", prompt: "consent" },
-    },
-  });
-
-  if (error || !data?.url) redirect("/login?error=oauth_failed");
-  else redirect(data.url);
-}
-
 // ── Update profile ────────────────────────────────────────────
 export async function updateProfile(
   _prev: AuthState,

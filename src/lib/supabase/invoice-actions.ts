@@ -74,6 +74,18 @@ export async function getMonthlyRevenueAction(
 ): Promise<MonthlyRevenuePoint[]> {
   const supabase = await createClient();
 
+  // Verify caller owns this org before querying (defense-in-depth on top of RLS)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.organization_id || profile.organization_id !== orgId) return [];
+
   const since = new Date();
   since.setMonth(since.getMonth() - (months - 1));
   since.setDate(1);

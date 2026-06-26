@@ -17,7 +17,7 @@ export default async function AcceptInvitePage({ searchParams }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/login?next=/auth/accept-invite?token=${token}`);
+    redirect(`/login?next=${encodeURIComponent(`/auth/accept-invite?token=${token}`)}`);
   }
 
   const result = await acceptInvitation(token);
