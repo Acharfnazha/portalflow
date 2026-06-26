@@ -101,7 +101,7 @@ export async function getSignedUrlAction(
 
     const { data, error } = await supabase.storage
       .from("documents")
-      .createSignedUrl(doc.file_path as string, 3600, {
+      .createSignedUrl(doc.file_path as string, 120, {
         download: doc.name as string,
       });
 

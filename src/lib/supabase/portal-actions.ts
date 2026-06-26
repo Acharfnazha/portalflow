@@ -92,7 +92,7 @@ export async function getPortalDocuments(clientId: string) {
     data.map(async (doc) => {
       const { data: signed } = await supabase.storage
         .from("documents")
-        .createSignedUrl(doc.file_path as string, 3600, {
+        .createSignedUrl(doc.file_path as string, 900, {
           download: doc.name as string,
         });
       return {

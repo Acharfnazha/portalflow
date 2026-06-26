@@ -93,12 +93,20 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event;
   try {
+    // constructEvent already validates the timestamp (default tolerance: 300s)
     event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     return NextResponse.json(
       { error: `Webhook signature verification failed: ${(err as Error).message}` },
       { status: 400 }
     );
+  }
+
+  // Reject events older than 5 minutes (defense-in-depth on top of Stripe's tolerance)
+  const ageSeconds = Math.floor(Date.now() / 1000) - event.created;
+  if (ageSeconds > 300) {
+    console.warn(`[stripe-webhook] Rejected stale event ${event.id} (age: ${ageSeconds}s)`);
+    return NextResponse.json({ error: "Event too old" }, { status: 400 });
   }
 
   const service = await createServiceClient();
